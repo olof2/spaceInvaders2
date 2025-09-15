@@ -70,7 +70,7 @@ namespace spaceInvaders1._1
             player = new Player(playerTexture, playerPosition, playerVelocity, windowWidth, windowHeight, lives);
 
             enemyPosition = new Vector2(100, 50);
-            enemyVelocity = new Vector2(3, 3);
+            enemyVelocity = new Vector2(2, 2);
             enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth);
 
             bulletList = new List<Bullet>();
