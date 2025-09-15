@@ -22,6 +22,10 @@ namespace spaceInvaders1._1
         private int lives;
         private int collisionLayer = 1;
 
+        private Enemy enemy;
+        private Vector2 enemyPosition;
+        private Vector2 enemyVelocity;
+
         private List<Bullet> bulletList;
         private Bullet bullet;
         private Vector2 bulletVelocity;
@@ -65,6 +69,10 @@ namespace spaceInvaders1._1
             lives = 3;
             player = new Player(playerTexture, playerPosition, playerVelocity, windowWidth, windowHeight, lives);
 
+            enemyPosition = new Vector2(100, 50);
+            enemyVelocity = new Vector2(3, 3);
+            enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth);
+
             bulletList = new List<Bullet>();
             bulletVelocity = new Vector2(0, -10);
 
@@ -79,6 +87,8 @@ namespace spaceInvaders1._1
             _title = "Spaceinvaders, score: " + _score + "window är" + windowHeight + " x " + windowWidth + "liv: " + lives;
 
             playerPosition = player.Update();
+            enemyPosition = enemy.Update();
+            if (enemyPosition.Y > windowHeight - 100) { lives -= 1; }
 
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
@@ -101,6 +111,7 @@ namespace spaceInvaders1._1
             _spriteBatch.Begin();
 
             player.Draw(_spriteBatch);
+            enemy.Draw(_spriteBatch);
 
             foreach (Bullet _bullet in bulletList)
             {
