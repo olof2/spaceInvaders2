@@ -18,6 +18,8 @@ namespace spaceInvaders1._1
         public int windowWidth;
         public int windowHeight;
         public int lives;
+        public Microsoft.Xna.Framework.Rectangle rect;
+
         public struct KeyboardState;
 
         public Player(Texture2D texture, Vector2 position, Vector2 velocity, int windowWidth, int windowHeight, int lives)
@@ -29,6 +31,8 @@ namespace spaceInvaders1._1
             this.windowHeight = windowHeight;
             this.lives = lives;
 
+            rect = new Microsoft.Xna.Framework.Rectangle((int)this.position.X, (int)this.position.Y, this.texture.Width, this.texture.Height);
+
         }
 
         public Vector2 Update()
@@ -36,10 +40,14 @@ namespace spaceInvaders1._1
             if (Keyboard.GetState().IsKeyDown(Keys.Right) && position.X + texture.Width < windowWidth)
             {
                 position.X += velocity.X;
+                rect.X = (int)position.X;
+                rect.Y = (int)position.Y;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.Left) && position.X > 0)
             {
                 position.X -= velocity.X;
+                rect.X = (int)position.X;
+                rect.Y = (int)position.Y;
             }
             return position;
         }

@@ -18,19 +18,24 @@ namespace spaceInvaders1._1
     public int windowHeight;
     public int windowWidth;
     public int lives;
+    public Microsoft.Xna.Framework.Rectangle rect;
 
-    public Enemy(Texture2D texture, Vector2 position, Vector2 velocity, int windowHeight, int windowWidth)
+        public Enemy(Texture2D texture, Vector2 position, Vector2 velocity, int windowHeight, int windowWidth)
     {
         this.texture = texture;
         this.position = position;
         this.velocity = velocity;
         this.windowHeight = windowHeight;
         this.windowWidth = windowWidth;
-    }
+
+        rect = new Microsoft.Xna.Framework.Rectangle((int)this.position.X, (int)this.position.Y, this.texture.Width, this.texture.Height);
+        }
 
     public Vector2 Update()
     {
         position.Y += velocity.Y;
+        rect.X = (int)position.X;
+        rect.Y = (int)position.Y;
         return position;
     }
 
