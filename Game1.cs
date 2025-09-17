@@ -153,16 +153,6 @@ namespace spaceInvaders1._1
                         _score += 100;
                     }
                 }
-
-                //for (int i = 0; i < enemyList.Count ; i++)
-                //{
-                //    //removes enemy hit by bullet
-                //    if (_bullet.rect.Intersects(enemyList[i].rect))
-                //        {
-                //        enemyList.RemoveAt(i);
-                //        break;
-                //        }
-                //}
             }
 
             foreach (Enemy _e in enemyTrash) {enemyList.Remove(_e);}
