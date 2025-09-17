@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Drawing.Text;
 
 
 namespace spaceInvaders1._1
@@ -30,6 +31,7 @@ namespace spaceInvaders1._1
 
         private List<Bullet> bulletList;
         private Bullet bullet;
+        private Bullet _bull;
         private Vector2 bulletVelocity;
         private Vector2 bulletPosition;
 
@@ -48,8 +50,8 @@ namespace spaceInvaders1._1
 
         protected override void Initialize()
         {
-            _graphics.PreferredBackBufferWidth = 800;
-            _graphics.PreferredBackBufferHeight = 900;
+            _graphics.PreferredBackBufferWidth = 1000;
+            _graphics.PreferredBackBufferHeight = 1200;
             _graphics.ApplyChanges();
             Window.Title = _title;
 
@@ -76,14 +78,18 @@ namespace spaceInvaders1._1
             enemyPosition = new Vector2(50, 50);
             enemyVelocity = new Vector2(2, 1);
             enemyList = new List<Enemy>();
-            for (int i = 0; i < 5; i++ )
+            for (int i = 0; i < 7; i++ )
             {
                 enemyPosition.Y = 50;
-                enemyPosition.X = 50 + i * 50 + i * enemyTexture.Width;
+                enemyPosition.X = 40 + i * 50 + i * enemyTexture.Width;
                 enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth);
                 enemyList.Add(enemy);
 
-                enemyPosition.Y = 150;
+                enemyPosition.Y = 140;
+                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth);
+                enemyList.Add(enemy);
+
+                enemyPosition.Y = 230;
                 enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth);
                 enemyList.Add(enemy);
             }
@@ -102,32 +108,36 @@ namespace spaceInvaders1._1
             Window.Title = _title;
             _title = "Spaceinvaders, score: " + _score + "window är" + windowHeight + " x " + windowWidth + "liv: " + lives;
 
+
             playerPosition = player.Update();
             
 
-
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
-                bullet = new Bullet(bulletTexture, collisionLayer, playerPosition, bulletVelocity, windowHeight - bulletTexture.Height);
+                bullet = new Bullet(bulletTexture, collisionLayer, playerPosition, bulletVelocity, windowHeight - bulletTexture.Height -100);
                 bulletList.Add(bullet);
                 // lägg till timer för att kunna skjuta
             }
-
 
             foreach (Bullet _bullet in bulletList)
             {
                 bulletPosition = _bullet.Update();
 
-                //if (_bullet.direction < 0 && _bullet.position.Y > _bullet.endPosition.Y )
-                //{
-                //    int i = bulletList.IndexOf(_bullet);
-                //    bulletList.RemoveAt(i);
-                //}
-
                 for (int i = 0; i < enemyList.Count ; i++)
                 {
+                    //removes enemy hit by bullet
                     if (_bullet.rect.Intersects(enemyList[i].rect))
                             { enemyList.RemoveAt(i); }
+                }
+            }
+
+            //removing bullets that reached end length
+            for (int i = 0; i < bulletList.Count; i++)
+            {
+                _bull = bulletList[i];
+                if (_bull.position.Y < _bull.endPosition.Y)
+                {
+                    bulletList.RemoveAt(i);
                 }
             }
 
@@ -135,6 +145,13 @@ namespace spaceInvaders1._1
             {
                 enemyPosition = _enemy.Update();
                 if (enemyPosition.Y > windowHeight - 100) { lives -= 1; }
+
+                //removing bullets that hit enemy
+                for (int i = 0; i < bulletList.Count; i++)
+                {
+                    if (_enemy.rect.Intersects(bulletList[i].rect))
+                    { bulletList.RemoveAt(i); }
+                }
             }
 
 
@@ -150,14 +167,7 @@ namespace spaceInvaders1._1
 
             foreach (Bullet _bullet in bulletList)
             {
-                if (_bullet.direction < 0 && _bullet.position.Y > _bullet.endPosition.Y)
-                {
-                    _bullet.Draw(_spriteBatch);
-                }
-                else if(_bullet.direction > 0 && _bullet.position.Y < _bullet.endPosition.Y)
-                {
-                    _bullet.Draw(_spriteBatch);
-                }
+                _bullet.Draw(_spriteBatch);
             }
 
             foreach (Enemy _enemy in enemyList)
