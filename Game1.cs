@@ -46,16 +46,6 @@ namespace spaceInvaders1._1
         }
 
 
-        //collision logic, named B=bullet, E=enemy, P=player, alphabetical order
-        protected bool CollideBE()
-        {
-            return bullet.rect.Intersects(enemy.rect);
-        }
-        protected bool CollideEP()
-        {
-            return player.rect.Intersects(enemy.rect);
-        }
-
         protected override void Initialize()
         {
             _graphics.PreferredBackBufferWidth = 800;
@@ -126,26 +116,27 @@ namespace spaceInvaders1._1
 
             foreach (Bullet _bullet in bulletList)
             {
-                _bullet.Update();
                 bulletPosition = _bullet.Update();
 
-                foreach (Enemy _enemy in enemyList)
+                //if (_bullet.direction < 0 && _bullet.position.Y > _bullet.endPosition.Y )
+                //{
+                //    int i = bulletList.IndexOf(_bullet);
+                //    bulletList.RemoveAt(i);
+                //}
+
+                for (int i = 0; i < enemyList.Count ; i++)
                 {
-                    if (_bullet.rect.Intersects(_enemy.rect))
-                    {
-                        Exit();
-                    }
+                    if (_bullet.rect.Intersects(enemyList[i].rect))
+                            { enemyList.RemoveAt(i); }
                 }
             }
 
             foreach (Enemy _enemy in enemyList)
             {
-
                 enemyPosition = _enemy.Update();
                 if (enemyPosition.Y > windowHeight - 100) { lives -= 1; }
             }
 
-            if (CollideBE()) { Exit(); }
 
             base.Update(gameTime);
         }
@@ -163,8 +154,10 @@ namespace spaceInvaders1._1
                 {
                     _bullet.Draw(_spriteBatch);
                 }
-                else { GraphicsDevice.Clear(Color.DarkBlue); }
-                //lägg till logik om bullet åker andra hållet
+                else if(_bullet.direction > 0 && _bullet.position.Y < _bullet.endPosition.Y)
+                {
+                    _bullet.Draw(_spriteBatch);
+                }
             }
 
             foreach (Enemy _enemy in enemyList)
