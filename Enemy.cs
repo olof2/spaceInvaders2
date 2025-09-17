@@ -17,7 +17,7 @@ namespace spaceInvaders1._1
     public Vector2 velocity;
     public int windowHeight;
     public int windowWidth;
-    public int lives;
+    public int lives = 0;
     public Microsoft.Xna.Framework.Rectangle rect;
 
         public Enemy(Texture2D texture, Vector2 position, Vector2 velocity, int windowHeight, int windowWidth)
