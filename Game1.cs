@@ -19,7 +19,7 @@ namespace spaceInvaders1._1
         private Texture2D bulletTexture;
         private Texture2D enemyTexture;
 
-        private Player player;
+        Player player;
         private Vector2 playerPosition;
         private Vector2 playerVelocity;
         private int lives;
@@ -33,10 +33,10 @@ namespace spaceInvaders1._1
 
         private List<Bullet> bulletList;
         private List<Bullet> bulletTrash;
-        private Vector2 bulletStartPosition;
         private Bullet bullet;
         private Bullet _bull;
         private Vector2 bulletVelocity;
+        private Vector2 bulletStartPosition;
         private Vector2 bulletPosition;
 
         private String _title = "";
@@ -44,7 +44,7 @@ namespace spaceInvaders1._1
         private int windowWidth;
         private int windowHeight;
 
-        private CooldownTimer cooldownTimer;
+        private CooldownTimer shootingTimer;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -62,12 +62,13 @@ namespace spaceInvaders1._1
             windowWidth = Window.ClientBounds.Width;
             windowHeight = Window.ClientBounds.Height;
 
-            cooldownTimer = new CooldownTimer();
-            cooldownTimer.ResetAndStart(0.6);
+            shootingTimer = new CooldownTimer();
+            shootingTimer.ResetAndStart(0.6);
 
             base.Initialize();
         }
 
+        
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -83,7 +84,7 @@ namespace spaceInvaders1._1
             player = new Player(playerTexture, playerPosition, playerVelocity, windowWidth, windowHeight, lives);
 
             enemyPosition = new Vector2(50, 50);
-            enemyVelocity = new Vector2(2, 1);
+            enemyVelocity = new Vector2(2, 6);
             enemyList = new List<Enemy>();
             enemyTrash = new List<Enemy>();
             //spawning enemies in 3 rows of 6
@@ -116,26 +117,27 @@ namespace spaceInvaders1._1
                 Exit();
 
             Window.Title = _title;
-            _title = "Spaceinvaders, score: " + _score + "window är" + windowHeight + " x " + windowWidth + "liv: " + lives;
+            _title = "Spaceinvaders, score: " + _score + ", window är" + windowHeight + " x " + windowWidth + ", liv: " + lives;
 
 
             playerPosition = player.Update();
-            cooldownTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
+            shootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
             foreach (Enemy _enemy in enemyList)
             {
-                enemyPosition = _enemy.Update();
-                if (enemyPosition.Y > windowHeight - 100) { lives -= 1; }
+                enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
+                if (enemyPosition.Y > windowHeight - 100) { lives -= 1; enemyTrash.Add(_enemy); }
+
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
-                if (cooldownTimer.IsDone())
+                if (shootingTimer.IsDone())
                 {
                     bulletStartPosition = new Vector2(playerPosition.X + 38, playerPosition.Y);
                     bullet = new Bullet(bulletTexture, collisionLayer, bulletStartPosition, bulletVelocity, windowHeight - bulletTexture.Height - 100);
                     bulletList.Add(bullet);
-                    cooldownTimer.ResetAndStart(0.6);
+                    shootingTimer.ResetAndStart(0.6);
                 }
             }
 

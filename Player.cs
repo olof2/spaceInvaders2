@@ -12,7 +12,7 @@ namespace spaceInvaders1._1
 {
     internal class Player
     {
-        public Texture2D texture;
+        private Texture2D texture;
         public Vector2 position;
         public Vector2 velocity;
         public int windowWidth;
@@ -20,7 +20,7 @@ namespace spaceInvaders1._1
         public int lives;
         public Microsoft.Xna.Framework.Rectangle rect;
 
-        public struct KeyboardState;
+        //public struct KeyboardState;
 
         public Player(Texture2D texture, Vector2 position, Vector2 velocity, int windowWidth, int windowHeight, int lives)
         {
