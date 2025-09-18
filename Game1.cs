@@ -86,7 +86,7 @@ namespace spaceInvaders1._1
             enemyVelocity = new Vector2(2, 1);
             enemyList = new List<Enemy>();
             enemyTrash = new List<Enemy>();
-            //spawning enemies
+            //spawning enemies in 3 rows of 6
             for (int i = 0; i < 6; i++ )
             {
                 enemyPosition.Y = 20;
