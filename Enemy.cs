@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace spaceInvaders1._1
+namespace spaceInvaders2
 {
     internal class Enemy
     {
@@ -17,21 +17,30 @@ namespace spaceInvaders1._1
         public Vector2 velocity;
         int windowHeight;
         int windowWidth;
-        int lives = 0;
+        public int lives;
         CooldownTimer moveTimer;
+        CooldownTimer shootTimer;
+        public Bullet bullet;
+        List<Bullet> bulletList;
         public Microsoft.Xna.Framework.Rectangle rect;
 
 
-        public Enemy(Texture2D texture, Vector2 position, Vector2 velocity, int windowHeight, int windowWidth)
+        public Enemy(Texture2D texture, Vector2 position, Vector2 velocity, int windowHeight, int windowWidth, int lives)
         {
             this.texture = texture;
             this.position = position;
             this.velocity = velocity;
             this.windowHeight = windowHeight;
             this.windowWidth = windowWidth;
+            this.lives = lives;
+
+            shootTimer = new CooldownTimer();
+            shootTimer.ResetAndStart(1.0);
+            bulletList = new List<Bullet>();
 
             moveTimer = new CooldownTimer();
             moveTimer.ResetAndStart(0.6);
+
             rect = new Microsoft.Xna.Framework.Rectangle((int)this.position.X, (int)this.position.Y, this.texture.Width, this.texture.Height);
         }
 
@@ -39,7 +48,16 @@ namespace spaceInvaders1._1
         {
 
             moveTimer.Update(gameTime);
-            if (moveTimer.IsDone())
+            shootTimer.Update(gameTime);
+
+            if (shootTimer.IsDone() && lives > 0)
+            {
+                // Shoot
+
+                shootTimer.ResetAndStart(2.0);
+            }
+
+            if (moveTimer.IsDone() && lives > 0)
             {
                 position.Y += velocity.Y;
                 rect.X = (int)position.X;
@@ -52,7 +70,10 @@ namespace spaceInvaders1._1
 
         public void Draw(SpriteBatch sb)
         {
-            sb.Draw(texture, position, Microsoft.Xna.Framework.Color.White);
+            if (lives > 0)
+            {
+                sb.Draw(texture, position, Microsoft.Xna.Framework.Color.White);
+            }
         }
     }
 }

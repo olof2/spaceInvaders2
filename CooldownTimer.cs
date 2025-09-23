@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace spaceInvaders1._1
+namespace spaceInvaders2
 {
     internal class CooldownTimer
 {

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace spaceInvaders1._1
+namespace spaceInvaders2
 {
     internal class Bullet
     {

@@ -8,7 +8,7 @@ using System.Drawing.Text;
 
 
 
-namespace spaceInvaders1._1
+namespace spaceInvaders2
 {
     public class Game1 : Game
     {
@@ -28,7 +28,8 @@ namespace spaceInvaders1._1
         private Enemy enemy;
         private Vector2 enemyPosition;
         private Vector2 enemyVelocity;
-        private List<Enemy> enemyList;
+        //private List<Enemy> enemyList;
+        private Enemy[,] enemyArray;
         private List<Enemy> enemyTrash;
 
         private List<Bullet> bulletList;
@@ -85,24 +86,29 @@ namespace spaceInvaders1._1
 
             enemyPosition = new Vector2(50, 50);
             enemyVelocity = new Vector2(2, 6);
-            enemyList = new List<Enemy>();
+            //enemyList = new List<Enemy>();
+            enemyArray = new Enemy[3,5];
             enemyTrash = new List<Enemy>();
-            //spawning enemies in 3 rows of 6
-            for (int i = 0; i < 6; i++ )
+            //spawning enemies in ARRAY, 3 rows of 6
+            for (int i = 0; i < 5; i++)
             {
                 enemyPosition.Y = 20;
                 enemyPosition.X = 20 + i * 30 + i * enemyTexture.Width;
-                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth);
-                enemyList.Add(enemy);
+                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 2);
+                //enemyList.Add(enemy);
+                enemyArray[0,i] = enemy;
 
                 enemyPosition.Y = 110;
-                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth);
-                enemyList.Add(enemy);
+                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
+                //enemyList.Add(enemy);
+                enemyArray[1,i] = enemy;
 
                 enemyPosition.Y = 200;
-                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth);
-                enemyList.Add(enemy);
+                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
+                //enemyList.Add(enemy);
+                enemyArray[2,i] = enemy;
             }
+
 
             bulletList = new List<Bullet>();
             bulletTrash = new List<Bullet>();
@@ -117,13 +123,13 @@ namespace spaceInvaders1._1
                 Exit();
 
             Window.Title = _title;
-            _title = "Spaceinvaders, score: " + _score + ", window är" + windowHeight + " x " + windowWidth + ", liv: " + lives;
+            _title = "Spaceinvaders, score: " + _score + ", liv: " + lives;
 
 
             playerPosition = player.Update();
             shootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
-            foreach (Enemy _enemy in enemyList)
+            foreach (Enemy _enemy in enemyArray)
             {
                 enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
                 if (enemyPosition.Y > windowHeight - 100) { lives -= 1; enemyTrash.Add(_enemy); }
@@ -145,18 +151,19 @@ namespace spaceInvaders1._1
             {
                 bulletPosition = _bullet.Update();
 
-                foreach (Enemy _enemy in enemyList)
+                foreach (Enemy _enemy in enemyArray)
                 {
-                    if (_bullet.rect.Intersects(_enemy.rect))
+                    if (_bullet.rect.Intersects(_enemy.rect) && _enemy.lives > 0)
                     {
-                        enemyTrash.Add(_enemy);
+                        //enemyTrash.Add(_enemy);
                         bulletTrash.Add(_bullet);
+                        _enemy.lives -= 1;
                         _score += 100;
                     }
                 }
             }
 
-            foreach (Enemy _e in enemyTrash) {enemyList.Remove(_e);}
+            //foreach (Enemy _e in enemyTrash) {enemyList.Remove(_e);}
             foreach (Bullet _b in bulletTrash) {bulletList.Remove(_b);}
 
             //removing bullets that reached end length
@@ -185,7 +192,7 @@ namespace spaceInvaders1._1
                 _bullet.Draw(_spriteBatch);
             }
 
-            foreach (Enemy _enemy in enemyList)
+            foreach (Enemy _enemy in enemyArray)
             {
                 _enemy.Draw(_spriteBatch);
             }
