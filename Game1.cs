@@ -158,6 +158,11 @@ namespace spaceInvaders2
                 if (_enemy.bullet != null)
                 {
                     _enemy.bullet.Update();
+                    if (_enemy.bullet.rect.Intersects(player.rect))
+                    {
+                        lives -= 1;
+                        _enemy.bullet = null;
+                    }
                 }
 
             }

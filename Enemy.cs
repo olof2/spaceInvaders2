@@ -19,7 +19,6 @@ namespace spaceInvaders2
         CooldownTimer shootTimer;
         public Bullet bullet;
         Vector2 bulletVelocity;
-        List<Bullet> bulletList;
         public Microsoft.Xna.Framework.Rectangle rect;
 
 
@@ -35,7 +34,6 @@ namespace spaceInvaders2
 
             shootTimer = new CooldownTimer();
             shootTimer.ResetAndStart(1.0);
-            bulletList = new List<Bullet>();
             bulletVelocity = new Vector2(0, 6);
             bulletStartPosition = new Vector2(position.X + texture.Width / 2 - bulletTexture.Width / 2, position.Y + texture.Height);
 
@@ -55,15 +53,7 @@ namespace spaceInvaders2
         {
 
             moveTimer.Update(gameTime);
-            //shootTimer.Update(gameTime);
             bulletStartPosition = new Vector2(position.X + texture.Width / 2 - bulletTexture.Width / 2, position.Y + texture.Height);
-
-            //if (shootTimer.IsDone() && lives > 0)
-            //{
-            //    // Shoot
-            //    Shoot();
-            //    shootTimer.ResetAndStart(2.0);
-            //}
 
             if (moveTimer.IsDone() && lives > 0)
             {
