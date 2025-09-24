@@ -34,11 +34,12 @@ namespace spaceInvaders2
         Random rnd;
         int enemyCol;
         int enemyRow;
+        bool goRight;
 
-        List<Bullet> bulletList;
-        List<Bullet> bulletTrash;
         Bullet bullet;
         Bullet _bull;
+        List<Bullet> bulletList;
+        List<Bullet> bulletTrash;
         Vector2 bulletVelocity;
         Vector2 bulletStartPosition;
         Vector2 bulletPosition;
@@ -93,11 +94,12 @@ namespace spaceInvaders2
 
 
             enemyPosition = new Vector2(50, 50);
-            enemyVelocity = new Vector2(2, 6);
+            enemyVelocity = new Vector2(20, 20);
             enemyArray = new Enemy[3,5];
             rnd = new Random();
             enemyCol = 4;
             enemyRow = 2;
+            goRight = true;
 
             //spawning enemies in ARRAY, 3 rows of 5
             for (int i = 0; i < 5; i++)
@@ -146,15 +148,30 @@ namespace spaceInvaders2
             //enemy update logic
             foreach (Enemy _enemy in enemyArray)
             {
-                enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
+                enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds, goRight);
 
-                if (enemyPosition.Y > windowHeight - 100) 
+                if (enemyPosition.X >= windowWidth - enemyTexture.Width)
+                {
+                    goRight = false;
+                    //vad som går fel är att den kollar en fiende (rad 0) och rad 1 och 2 hoppar ner 1 frame före rad 0
+
+
+                    //make all enemies jump down when one hits the edge _____fortsätt här
+                    //foreach (Enemy _e in enemyArray) { _e.position.Y += 20; }
+                    //denna funkar inte, något händer med foreach loopen i foreach, den loopar för alla gånger antalet fiender
+                    //_enemy.JumpDown(); kan kallas på men funkar inte riktigt, samma som ovan
+                }
+                else if (enemyPosition.X <= 0) { goRight = true; }
+
+                //checking if enemy reached bottom of screen, if so, player loses a life and enemy dies
+                if (enemyPosition.Y > windowHeight - 100)
                 {
                     lives -= 1;
                     _enemy.lives = 0;
-                    _enemy.position.Y = 200;   
+                    _enemy.position.Y = 200;
                 }
 
+                //updating enemy bullets and checking collision with player
                 if (_enemy.bullet != null)
                 {
                     _enemy.bullet.Update();

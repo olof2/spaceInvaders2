@@ -16,7 +16,6 @@ namespace spaceInvaders2
         CooldownTimer moveTimer;
 
         Vector2 bulletStartPosition;
-        CooldownTimer shootTimer;
         public Bullet bullet;
         Vector2 bulletVelocity;
         public Microsoft.Xna.Framework.Rectangle rect;
@@ -32,11 +31,8 @@ namespace spaceInvaders2
             this.windowWidth = windowWidth;
             this.lives = lives;
 
-            shootTimer = new CooldownTimer();
-            shootTimer.ResetAndStart(1.0);
             bulletVelocity = new Vector2(0, 6);
             bulletStartPosition = new Vector2(position.X + texture.Width / 2 - bulletTexture.Width / 2, position.Y + texture.Height);
-
 
             moveTimer = new CooldownTimer();
             moveTimer.ResetAndStart(0.6);
@@ -49,22 +45,52 @@ namespace spaceInvaders2
             bullet = new Bullet(bulletTexture, 0, bulletStartPosition, bulletVelocity, windowHeight);
         }
 
-        public Vector2 Update(double gameTime)
+        public Vector2 Update(double gameTime, bool goRight)
         {
-
             moveTimer.Update(gameTime);
             bulletStartPosition = new Vector2(position.X + texture.Width / 2 - bulletTexture.Width / 2, position.Y + texture.Height);
 
             if (moveTimer.IsDone() && lives > 0)
             {
-                position.Y += velocity.Y;
-                rect.X = (int)position.X;
-                rect.Y = (int)position.Y;
-                moveTimer.ResetAndStart(0.6);
-                return position;
+                if (goRight)
+                { 
+                    position.X += velocity.X;
+                    moveTimer.ResetAndStart(0.6);
+                    rect.X = (int)position.X;
+                    rect.Y = (int)position.Y;
+                    return position;
+                }
+                else 
+                { 
+                    position.X -= velocity.X;
+                    moveTimer.ResetAndStart(0.6);
+                    rect.X = (int)position.X;
+                    rect.Y = (int)position.Y;
+                    return position;
+                }
             }
 
             else { return position; }
+        }
+
+        public bool GoRight()
+        {
+            if (position.X + texture.Width >= windowWidth)
+            {
+                return false;
+            }
+            else if (position.X <= 0)
+            {
+                return true;
+            }
+            else { return true; }
+        }
+
+        public void JumpDown()
+        {
+            position.Y += velocity.Y;
+            rect.X = (int)position.X;
+            rect.Y = (int)position.Y;
         }
 
         public void Draw(SpriteBatch sb)
