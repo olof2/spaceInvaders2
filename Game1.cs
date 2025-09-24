@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.DirectWrite;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Drawing.Text;
 
 
@@ -12,40 +14,43 @@ namespace spaceInvaders2
 {
     public class Game1 : Game
     {
-        private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
+        GraphicsDeviceManager _graphics;
+        SpriteBatch _spriteBatch;
 
-        private Texture2D playerTexture;
-        private Texture2D bulletTexture;
-        private Texture2D enemyTexture;
+        Texture2D playerTexture;
+        Texture2D bulletTexture;
+        Texture2D enemyTexture;
 
         Player player;
-        private Vector2 playerPosition;
-        private Vector2 playerVelocity;
-        private int lives;
-        private int collisionLayer = 1;
+        Vector2 playerPosition;
+        Vector2 playerVelocity;
+        int lives;
+        int collisionLayer = 1;
 
-        private Enemy enemy;
-        private Vector2 enemyPosition;
-        private Vector2 enemyVelocity;
-        //private List<Enemy> enemyList;
-        private Enemy[,] enemyArray;
-        private List<Enemy> enemyTrash;
+        Enemy enemy;
+        Vector2 enemyPosition;
+        Vector2 enemyVelocity;
+        Enemy[,] enemyArray;
+        Random rnd;
+        int enemyCol;
+        int enemyRow;
 
-        private List<Bullet> bulletList;
-        private List<Bullet> bulletTrash;
-        private Bullet bullet;
-        private Bullet _bull;
-        private Vector2 bulletVelocity;
-        private Vector2 bulletStartPosition;
-        private Vector2 bulletPosition;
+        List<Bullet> bulletList;
+        List<Bullet> bulletTrash;
+        Bullet bullet;
+        Bullet _bull;
+        Vector2 bulletVelocity;
+        Vector2 bulletStartPosition;
+        Vector2 bulletPosition;
 
-        private String _title = "";
-        private int _score = 0;
-        private int windowWidth;
-        private int windowHeight;
+        String _title = "";
+        int _score = 0;
+        int windowWidth;
+        int windowHeight;
 
-        private CooldownTimer shootingTimer;
+        CooldownTimer shootingTimer;
+        CooldownTimer enemyShootingTimer;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -65,6 +70,8 @@ namespace spaceInvaders2
 
             shootingTimer = new CooldownTimer();
             shootingTimer.ResetAndStart(0.6);
+            enemyShootingTimer = new CooldownTimer();
+            enemyShootingTimer.ResetAndStart(1.0);
 
             base.Initialize();
         }
@@ -84,28 +91,28 @@ namespace spaceInvaders2
             lives = 3;
             player = new Player(playerTexture, playerPosition, playerVelocity, windowWidth, windowHeight, lives);
 
+
             enemyPosition = new Vector2(50, 50);
             enemyVelocity = new Vector2(2, 6);
-            //enemyList = new List<Enemy>();
             enemyArray = new Enemy[3,5];
-            enemyTrash = new List<Enemy>();
-            //spawning enemies in ARRAY, 3 rows of 6
+            rnd = new Random();
+            enemyCol = 4;
+            enemyRow = 2;
+
+            //spawning enemies in ARRAY, 3 rows of 5
             for (int i = 0; i < 5; i++)
             {
                 enemyPosition.Y = 20;
                 enemyPosition.X = 20 + i * 30 + i * enemyTexture.Width;
-                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 2);
-                //enemyList.Add(enemy);
+                enemy = new Enemy(enemyTexture, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 2);
                 enemyArray[0,i] = enemy;
 
                 enemyPosition.Y = 110;
-                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
-                //enemyList.Add(enemy);
+                enemy = new Enemy(enemyTexture, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
                 enemyArray[1,i] = enemy;
 
                 enemyPosition.Y = 200;
-                enemy = new Enemy(enemyTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
-                //enemyList.Add(enemy);
+                enemy = new Enemy(enemyTexture, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
                 enemyArray[2,i] = enemy;
             }
 
@@ -117,25 +124,74 @@ namespace spaceInvaders2
 
         }
 
+
         protected override void Update(GameTime gameTime)
         {
+            // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 Exit();
+            }
 
+
+            //updating title with score and lives
             Window.Title = _title;
             _title = "Spaceinvaders, score: " + _score + ", liv: " + lives;
 
 
             playerPosition = player.Update();
             shootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
+            enemyShootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
+            //enemy update logic
             foreach (Enemy _enemy in enemyArray)
             {
                 enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
-                if (enemyPosition.Y > windowHeight - 100) { lives -= 1; enemyTrash.Add(_enemy); }
+
+                if (enemyPosition.Y > windowHeight - 100) 
+                {
+                    lives -= 1;
+                    _enemy.lives = 0;
+                    _enemy.position.Y = 200;   
+                }
+
+                if (_enemy.bullet != null)
+                {
+                    _enemy.bullet.Update();
+                }
 
             }
 
+            //enemy shooting logic
+            if (enemyShootingTimer.IsDone())
+            {
+                //slumpar fram en enemy som ska skjuta, kollar om den lever, annars kollar nästa enemy i arrayen
+                enemyCol = rnd.Next(0, 5);
+                enemyRow = rnd.Next(0, 3);
+                while (enemyArray[enemyRow, enemyCol].lives == 0)
+                {
+                    Debug.WriteLine("enemy at " + enemyRow + " , " + enemyCol + " is dead, finding new enemy");
+                    if (enemyCol < 4) { enemyCol++; }
+                    else
+                    {
+                        enemyCol = 0;
+
+                        if (enemyRow < 2)
+                        {
+                            enemyRow++;
+                        }
+
+                        else { enemyRow = 0; }
+                    }
+                }
+
+                Debug.WriteLine("shooting at " + enemyRow + " , " + enemyCol);
+                enemyArray[enemyRow, enemyCol].Shoot();
+                enemyShootingTimer.ResetAndStart(1.5);
+
+            }
+
+            //player shooting logic
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
                 if (shootingTimer.IsDone())
@@ -147,6 +203,8 @@ namespace spaceInvaders2
                 }
             }
 
+
+            //updating player bullets and checking collision with enemies
             foreach (Bullet _bullet in bulletList)
             {
                 bulletPosition = _bullet.Update();
@@ -155,7 +213,6 @@ namespace spaceInvaders2
                 {
                     if (_bullet.rect.Intersects(_enemy.rect) && _enemy.lives > 0)
                     {
-                        //enemyTrash.Add(_enemy);
                         bulletTrash.Add(_bullet);
                         _enemy.lives -= 1;
                         _score += 100;
@@ -163,8 +220,10 @@ namespace spaceInvaders2
                 }
             }
 
-            //foreach (Enemy _e in enemyTrash) {enemyList.Remove(_e);}
+
+            //removing bullets that hit enemy
             foreach (Bullet _b in bulletTrash) {bulletList.Remove(_b);}
+
 
             //removing bullets that reached end length
             for (int i = 0; i < bulletList.Count; i++)
@@ -195,6 +254,10 @@ namespace spaceInvaders2
             foreach (Enemy _enemy in enemyArray)
             {
                 _enemy.Draw(_spriteBatch);
+                if (_enemy.bullet != null)
+                {
+                    _enemy.bullet.Draw(_spriteBatch);
+                }
             }
 
             _spriteBatch.End();
