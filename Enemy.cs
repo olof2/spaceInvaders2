@@ -14,6 +14,7 @@ namespace spaceInvaders2
         int windowWidth;
         public int lives;
         CooldownTimer moveTimer;
+        double moveDelay;
 
         Vector2 bulletStartPosition;
         public Bullet bullet;
@@ -36,6 +37,7 @@ namespace spaceInvaders2
 
             moveTimer = new CooldownTimer();
             moveTimer.ResetAndStart(0.6);
+            moveDelay = 0.6;
 
             rect = new Microsoft.Xna.Framework.Rectangle((int)this.position.X, (int)this.position.Y, this.texture.Width, this.texture.Height);
         }
@@ -53,7 +55,7 @@ namespace spaceInvaders2
             if (moveTimer.IsDone() && lives > 0)
             {
                 position.X += velocity.X;
-                moveTimer.ResetAndStart(0.6);
+                moveTimer.ResetAndStart(moveDelay);
                 rect.X = (int)position.X;
                 rect.Y = (int)position.Y;
                 return position;
@@ -65,6 +67,10 @@ namespace spaceInvaders2
         public void JumpDown()
         {
             position.Y += velocity.Y;
+            if (moveDelay > 0.15)
+            {
+                moveDelay -= 0.05;
+            }
             rect.X = (int)position.X;
             rect.Y = (int)position.Y;
         }
@@ -80,7 +86,6 @@ namespace spaceInvaders2
             {
                 sb.Draw(texture, position, Microsoft.Xna.Framework.Color.White);
             }
-
         }
     }
 }
