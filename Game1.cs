@@ -16,6 +16,9 @@ namespace spaceInvaders2
     {
         GraphicsDeviceManager _graphics;
         SpriteBatch _spriteBatch;
+        public enum GameState { Menu, Game, GameOver }
+        GameState gameState = GameState.Menu;
+
 
         Texture2D playerTexture;
         Texture2D bulletTexture;
