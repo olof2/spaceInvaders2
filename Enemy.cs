@@ -45,45 +45,21 @@ namespace spaceInvaders2
             bullet = new Bullet(bulletTexture, 0, bulletStartPosition, bulletVelocity, windowHeight);
         }
 
-        public Vector2 Update(double gameTime, bool goRight)
+        public Vector2 Update(double gameTime)
         {
             moveTimer.Update(gameTime);
             bulletStartPosition = new Vector2(position.X + texture.Width / 2 - bulletTexture.Width / 2, position.Y + texture.Height);
 
             if (moveTimer.IsDone() && lives > 0)
             {
-                if (goRight)
-                { 
-                    position.X += velocity.X;
-                    moveTimer.ResetAndStart(0.6);
-                    rect.X = (int)position.X;
-                    rect.Y = (int)position.Y;
-                    return position;
-                }
-                else 
-                { 
-                    position.X -= velocity.X;
-                    moveTimer.ResetAndStart(0.6);
-                    rect.X = (int)position.X;
-                    rect.Y = (int)position.Y;
-                    return position;
-                }
+                position.X += velocity.X;
+                moveTimer.ResetAndStart(0.6);
+                rect.X = (int)position.X;
+                rect.Y = (int)position.Y;
+                return position;
             }
 
             else { return position; }
-        }
-
-        public bool GoRight()
-        {
-            if (position.X + texture.Width >= windowWidth)
-            {
-                return false;
-            }
-            else if (position.X <= 0)
-            {
-                return true;
-            }
-            else { return true; }
         }
 
         public void JumpDown()
@@ -91,6 +67,11 @@ namespace spaceInvaders2
             position.Y += velocity.Y;
             rect.X = (int)position.X;
             rect.Y = (int)position.Y;
+        }
+
+        public void flipDirection()
+        {
+            velocity.X *= -1;    
         }
 
         public void Draw(SpriteBatch sb)

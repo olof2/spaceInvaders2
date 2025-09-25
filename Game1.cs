@@ -34,7 +34,8 @@ namespace spaceInvaders2
         Random rnd;
         int enemyCol;
         int enemyRow;
-        bool goRight;
+        bool flipDirection;
+        int edgeBoost;
 
         Bullet bullet;
         Bullet _bull;
@@ -99,7 +100,8 @@ namespace spaceInvaders2
             rnd = new Random();
             enemyCol = 4;
             enemyRow = 2;
-            goRight = true;
+            flipDirection = false;
+            edgeBoost = 0;
 
             //spawning enemies in ARRAY, 3 rows of 5
             for (int i = 0; i < 5; i++)
@@ -118,12 +120,10 @@ namespace spaceInvaders2
                 enemyArray[2,i] = enemy;
             }
 
-
             bulletList = new List<Bullet>();
             bulletTrash = new List<Bullet>();
             bulletVelocity = new Vector2(0, -10);
             bulletPosition = new Vector2(0, 0);
-
         }
 
 
@@ -145,23 +145,23 @@ namespace spaceInvaders2
             shootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
             enemyShootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
+
             //enemy update logic
+            flipDirection = false;
             foreach (Enemy _enemy in enemyArray)
             {
-                enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds, goRight);
+                enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
                 if (enemyPosition.X >= windowWidth - enemyTexture.Width)
                 {
-                    goRight = false;
-                    //vad som går fel är att den kollar en fiende (rad 0) och rad 1 och 2 hoppar ner 1 frame före rad 0
-
-
-                    //make all enemies jump down when one hits the edge _____fortsätt här
-                    //foreach (Enemy _e in enemyArray) { _e.position.Y += 20; }
-                    //denna funkar inte, något händer med foreach loopen i foreach, den loopar för alla gånger antalet fiender
-                    //_enemy.JumpDown(); kan kallas på men funkar inte riktigt, samma som ovan
+                    flipDirection = true;
+                    edgeBoost = -20;
                 }
-                else if (enemyPosition.X <= 0) { goRight = true; }
+                else if (enemyPosition.X <= 0)
+                {
+                    flipDirection = true;
+                    edgeBoost = 20;
+                }
 
                 //checking if enemy reached bottom of screen, if so, player loses a life and enemy dies
                 if (enemyPosition.Y > windowHeight - 100)
@@ -182,6 +182,17 @@ namespace spaceInvaders2
                     }
                 }
 
+            }
+
+            if (flipDirection == true)
+            {
+                foreach (Enemy _e in enemyArray) 
+                {
+                    _e.position.X += edgeBoost;
+                    _e.JumpDown();
+                    _e.flipDirection();
+                }
+                flipDirection = false;
             }
 
             //enemy shooting logic
