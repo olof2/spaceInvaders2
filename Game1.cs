@@ -26,6 +26,7 @@ namespace spaceInvaders2
         Texture2D playerTexture;
         Texture2D bulletTexture;
         Texture2D enemyTexture;
+        Texture2D menuBackground;
 
         Player player;
         Vector2 playerPosition;
@@ -96,6 +97,7 @@ namespace spaceInvaders2
             playerTexture = Content.Load<Texture2D>(@"Ship_01-1");
             bulletTexture = Content.Load<Texture2D>(@"Bullet");
             enemyTexture = Content.Load<Texture2D>(@"alien03_single");
+            menuBackground = Content.Load<Texture2D>("space_light");
 
 
             playerPosition = new Vector2(windowWidth/2, windowHeight - 20 - playerTexture.Height);
@@ -307,7 +309,8 @@ namespace spaceInvaders2
 
             if (gameState == GameState.Menu)
             {
-                _spriteBatch.DrawString(spriteFont, "press SPACE to start", textPosition, Color.HotPink, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
+                _spriteBatch.Draw(menuBackground, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1.5f, SpriteEffects.None, 0f);
+                _spriteBatch.DrawString(spriteFont, "press SPACE to start", textPosition, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             }
 
             if (gameState == GameState.Game)
