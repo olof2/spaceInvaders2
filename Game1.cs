@@ -27,6 +27,11 @@ namespace spaceInvaders2
         Texture2D bulletTexture;
         Texture2D enemyTexture;
         Texture2D menuBackground;
+        Texture2D gameOverBackground;
+
+        Vector2 backgroundOrigin1;
+        Vector2 backgroundOrigin2;
+        Vector2 backgroundOrigin3;
 
         Player player;
         Vector2 playerPosition;
@@ -43,6 +48,7 @@ namespace spaceInvaders2
         int enemyRow;
         bool flipDirection;
         int edgeBoost;
+        int enemyLivesSum;
 
         Bullet bullet;
         Bullet _bull;
@@ -92,12 +98,17 @@ namespace spaceInvaders2
 
             spriteFont = Content.Load<SpriteFont>("spritefont1");
             textPosition = new Vector2(windowWidth / 2 - 100, windowHeight / 2);
-            scorePosition = new Vector2(40, windowHeight - 35);
+            scorePosition = new Vector2(40, windowHeight - 45);
 
             playerTexture = Content.Load<Texture2D>(@"Ship_01-1");
             bulletTexture = Content.Load<Texture2D>(@"Bullet");
             enemyTexture = Content.Load<Texture2D>(@"alien03_single");
             menuBackground = Content.Load<Texture2D>("space_light");
+            gameOverBackground = Content.Load<Texture2D>("Stars_panorama_sheet");
+
+            backgroundOrigin1 = new Vector2(gameOverBackground.Width, 50);
+            backgroundOrigin2 = new Vector2(gameOverBackground.Width*2, 10);
+            backgroundOrigin3 = new Vector2(gameOverBackground.Width*3, 20);
 
 
             playerPosition = new Vector2(windowWidth/2, windowHeight - 20 - playerTexture.Height);
@@ -114,6 +125,7 @@ namespace spaceInvaders2
             enemyRow = 2;
             flipDirection = false;
             edgeBoost = 0;
+            enemyLivesSum = 0;
 
             //spawning enemies in ARRAY, 3 rows of 5
             for (int i = 0; i < 5; i++)
@@ -168,6 +180,7 @@ namespace spaceInvaders2
                 playerPosition = player.Update();
                 shootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
                 enemyShootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
+                enemyLivesSum = 0;
 
 
                 //enemy update logic
@@ -176,15 +189,16 @@ namespace spaceInvaders2
                 {
                     enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
+                    //if enemy reached edge, flip direction, setting edgeboost to safeguard from enemy getting stuck at edge
                     if (enemyPosition.X >= windowWidth - enemyTexture.Width)
                     {
                         flipDirection = true;
-                        edgeBoost = -20;
+                        edgeBoost = -50;
                     }
                     else if (enemyPosition.X <= 0)
                     {
                         flipDirection = true;
-                        edgeBoost = 20;
+                        edgeBoost = 50;
                     }
 
                     //checking if enemy reached bottom of screen, if so, player loses a life and enemy dies
@@ -193,6 +207,7 @@ namespace spaceInvaders2
                         lives -= 1;
                         _enemy.lives = 0;
                         _enemy.position.Y = 200;
+                        if (lives <= 0) { gameState = GameState.GameOver; }
                     }
 
                     //updating enemy bullets and checking collision with player
@@ -203,6 +218,7 @@ namespace spaceInvaders2
                         {
                             lives -= 1;
                             _enemy.bullet = null;
+                            if (lives <= 0) { gameState = GameState.GameOver; }
                         }
                     }
 
@@ -277,6 +293,13 @@ namespace spaceInvaders2
                     }
                 }
 
+                //check if any enemies are alive, if not, go to gameover
+                foreach (Enemy _enemy in enemyArray)
+                {
+                    enemyLivesSum += _enemy.lives;
+                }
+                if (enemyLivesSum <= 0) { gameState = GameState.GameOver; }
+
 
                 //removing bullets that hit enemy
                 foreach (Bullet _b in bulletTrash) { bulletList.Remove(_b); }
@@ -336,7 +359,11 @@ namespace spaceInvaders2
 
             if (gameState == GameState.GameOver)
             {
-                _spriteBatch.DrawString(spriteFont, "GAME OVER", textPosition, Color.RosyBrown, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
+                _spriteBatch.Draw(gameOverBackground, Vector2.Zero, null, Color.White);
+                _spriteBatch.Draw(gameOverBackground, backgroundOrigin1, Color.Yellow);
+                _spriteBatch.Draw(gameOverBackground, backgroundOrigin2, Color.DarkGray);
+                _spriteBatch.Draw(gameOverBackground, backgroundOrigin3, Color.Turquoise);
+                _spriteBatch.DrawString(spriteFont, "GAME OVER", textPosition, Color.White, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
             }
 
             _spriteBatch.End();
