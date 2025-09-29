@@ -19,6 +19,9 @@ namespace spaceInvaders2
         public enum GameState { Menu, Game, GameOver }
         GameState gameState = GameState.Menu;
 
+        SpriteFont spriteFont;
+        Vector2 textPosition;
+        Vector2 scorePosition;
 
         Texture2D playerTexture;
         Texture2D bulletTexture;
@@ -86,6 +89,10 @@ namespace spaceInvaders2
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            spriteFont = Content.Load<SpriteFont>("spritefont1");
+            textPosition = new Vector2(windowWidth / 2 - 100, windowHeight / 2);
+            scorePosition = new Vector2(40, windowHeight - 35);
+
             playerTexture = Content.Load<Texture2D>(@"Ship_01-1");
             bulletTexture = Content.Load<Texture2D>(@"Bullet");
             enemyTexture = Content.Load<Texture2D>(@"alien03_single");
@@ -143,134 +150,152 @@ namespace spaceInvaders2
             Window.Title = _title;
             _title = "Spaceinvaders, score: " + _score + ", liv: " + lives;
 
-
-            playerPosition = player.Update();
-            shootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
-            enemyShootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
-
-
-            //enemy update logic
-            flipDirection = false;
-            foreach (Enemy _enemy in enemyArray)
+            //gamestate MENU
+            if (gameState == GameState.Menu)
             {
-                enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
-
-                if (enemyPosition.X >= windowWidth - enemyTexture.Width)
+                if (Keyboard.GetState().IsKeyDown(Keys.Space))
                 {
-                    flipDirection = true;
-                    edgeBoost = -20;
+                    gameState = GameState.Game;
                 }
-                else if (enemyPosition.X <= 0)
-                {
-                    flipDirection = true;
-                    edgeBoost = 20;
-                }
-
-                //checking if enemy reached bottom of screen, if so, player loses a life and enemy dies
-                if (enemyPosition.Y > windowHeight - 100)
-                {
-                    lives -= 1;
-                    _enemy.lives = 0;
-                    _enemy.position.Y = 200;
-                }
-
-                //updating enemy bullets and checking collision with player
-                if (_enemy.bullet != null)
-                {
-                    _enemy.bullet.Update();
-                    if (_enemy.bullet.rect.Intersects(player.rect))
-                    {
-                        lives -= 1;
-                        _enemy.bullet = null;
-                    }
-                }
-
             }
 
-            if (flipDirection == true)
+            //gamestate game
+            if (gameState == GameState.Game)
             {
-                foreach (Enemy _e in enemyArray) 
-                {
-                    _e.position.X += edgeBoost;
-                    _e.JumpDown();
-                    _e.flipDirection();
-                }
+
+                playerPosition = player.Update();
+                shootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
+                enemyShootingTimer.Update(gameTime.ElapsedGameTime.TotalSeconds);
+
+
+                //enemy update logic
                 flipDirection = false;
-            }
-
-            //enemy shooting logic
-            if (enemyShootingTimer.IsDone())
-            {
-                //slumpar fram en enemy som ska skjuta, kollar om den lever, annars kollar nästa enemy i arrayen
-                enemyCol = rnd.Next(0, 5);
-                enemyRow = rnd.Next(0, 3);
-                while (enemyArray[enemyRow, enemyCol].lives == 0)
-                {
-                    Debug.WriteLine("enemy at " + enemyRow + " , " + enemyCol + " is dead, finding new enemy");
-                    if (enemyCol < 4) { enemyCol++; }
-                    else
-                    {
-                        enemyCol = 0;
-
-                        if (enemyRow < 2)
-                        {
-                            enemyRow++;
-                        }
-
-                        else { enemyRow = 0; }
-                    }
-                }
-
-                Debug.WriteLine("shooting at " + enemyRow + " , " + enemyCol);
-                enemyArray[enemyRow, enemyCol].Shoot();
-                enemyShootingTimer.ResetAndStart(1.5);
-
-            }
-
-            //player shooting logic
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
-            {
-                if (shootingTimer.IsDone())
-                {
-                    bulletStartPosition = new Vector2(playerPosition.X + 38, playerPosition.Y);
-                    bullet = new Bullet(bulletTexture, collisionLayer, bulletStartPosition, bulletVelocity, windowHeight - bulletTexture.Height - 100);
-                    bulletList.Add(bullet);
-                    shootingTimer.ResetAndStart(0.6);
-                }
-            }
-
-
-            //updating player bullets and checking collision with enemies
-            foreach (Bullet _bullet in bulletList)
-            {
-                bulletPosition = _bullet.Update();
-
                 foreach (Enemy _enemy in enemyArray)
                 {
-                    if (_bullet.rect.Intersects(_enemy.rect) && _enemy.lives > 0)
+                    enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
+
+                    if (enemyPosition.X >= windowWidth - enemyTexture.Width)
                     {
-                        bulletTrash.Add(_bullet);
-                        _enemy.lives -= 1;
-                        _score += 100;
+                        flipDirection = true;
+                        edgeBoost = -20;
+                    }
+                    else if (enemyPosition.X <= 0)
+                    {
+                        flipDirection = true;
+                        edgeBoost = 20;
+                    }
+
+                    //checking if enemy reached bottom of screen, if so, player loses a life and enemy dies
+                    if (enemyPosition.Y > windowHeight - 100)
+                    {
+                        lives -= 1;
+                        _enemy.lives = 0;
+                        _enemy.position.Y = 200;
+                    }
+
+                    //updating enemy bullets and checking collision with player
+                    if (_enemy.bullet != null)
+                    {
+                        _enemy.bullet.Update();
+                        if (_enemy.bullet.rect.Intersects(player.rect))
+                        {
+                            lives -= 1;
+                            _enemy.bullet = null;
+                        }
+                    }
+
+                }
+
+                if (flipDirection == true)
+                {
+                    foreach (Enemy _e in enemyArray)
+                    {
+                        _e.position.X += edgeBoost;
+                        _e.JumpDown();
+                        _e.flipDirection();
+                    }
+                    flipDirection = false;
+                }
+
+                //enemy shooting logic
+                if (enemyShootingTimer.IsDone())
+                {
+                    //slumpar fram en enemy som ska skjuta, kollar om den lever, annars kollar nästa enemy i arrayen
+                    enemyCol = rnd.Next(0, 5);
+                    enemyRow = rnd.Next(0, 3);
+                    while (enemyArray[enemyRow, enemyCol].lives == 0)
+                    {
+                        Debug.WriteLine("enemy at " + enemyRow + " , " + enemyCol + " is dead, finding new enemy");
+                        if (enemyCol < 4) { enemyCol++; }
+                        else
+                        {
+                            enemyCol = 0;
+
+                            if (enemyRow < 2)
+                            {
+                                enemyRow++;
+                            }
+
+                            else { enemyRow = 0; }
+                        }
+                    }
+
+                    Debug.WriteLine("shooting at " + enemyRow + " , " + enemyCol);
+                    enemyArray[enemyRow, enemyCol].Shoot();
+                    enemyShootingTimer.ResetAndStart(1.5);
+
+                }
+
+                //player shooting logic
+                if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                {
+                    if (shootingTimer.IsDone())
+                    {
+                        bulletStartPosition = new Vector2(playerPosition.X + 38, playerPosition.Y);
+                        bullet = new Bullet(bulletTexture, collisionLayer, bulletStartPosition, bulletVelocity, windowHeight - bulletTexture.Height - 100);
+                        bulletList.Add(bullet);
+                        shootingTimer.ResetAndStart(0.6);
+                    }
+                }
+
+
+                //updating player bullets and checking collision with enemies
+                foreach (Bullet _bullet in bulletList)
+                {
+                    bulletPosition = _bullet.Update();
+
+                    foreach (Enemy _enemy in enemyArray)
+                    {
+                        if (_bullet.rect.Intersects(_enemy.rect) && _enemy.lives > 0)
+                        {
+                            bulletTrash.Add(_bullet);
+                            _enemy.lives -= 1;
+                            _score += 100;
+                        }
+                    }
+                }
+
+
+                //removing bullets that hit enemy
+                foreach (Bullet _b in bulletTrash) { bulletList.Remove(_b); }
+
+
+                //removing bullets that reached end length
+                for (int i = 0; i < bulletList.Count; i++)
+                {
+                    _bull = bulletList[i];
+                    if (_bull.position.Y < _bull.endPosition.Y)
+                    {
+                        bulletList.RemoveAt(i);
                     }
                 }
             }
 
-
-            //removing bullets that hit enemy
-            foreach (Bullet _b in bulletTrash) {bulletList.Remove(_b);}
-
-
-            //removing bullets that reached end length
-            for (int i = 0; i < bulletList.Count; i++)
+            //gamestate gameover
+            if (gameState == GameState.GameOver)
             {
-                _bull = bulletList[i];
-                if (_bull.position.Y < _bull.endPosition.Y)
-                {
-                    bulletList.RemoveAt(i);
-                }
-            }
 
+            }
 
             base.Update(gameTime);
         }
@@ -280,20 +305,35 @@ namespace spaceInvaders2
             GraphicsDevice.Clear(Color.Black);
             _spriteBatch.Begin();
 
-            player.Draw(_spriteBatch);
-
-            foreach (Bullet _bullet in bulletList)
+            if (gameState == GameState.Menu)
             {
-                _bullet.Draw(_spriteBatch);
+                _spriteBatch.DrawString(spriteFont, "press SPACE to start", textPosition, Color.HotPink, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
             }
 
-            foreach (Enemy _enemy in enemyArray)
+            if (gameState == GameState.Game)
             {
-                _enemy.Draw(_spriteBatch);
-                if (_enemy.bullet != null)
+                player.Draw(_spriteBatch);
+
+                foreach (Bullet _bullet in bulletList)
                 {
-                    _enemy.bullet.Draw(_spriteBatch);
+                    _bullet.Draw(_spriteBatch);
                 }
+
+                foreach (Enemy _enemy in enemyArray)
+                {
+                    _enemy.Draw(_spriteBatch);
+                    if (_enemy.bullet != null)
+                    {
+                        _enemy.bullet.Draw(_spriteBatch);
+                    }
+                }
+
+                _spriteBatch.DrawString(spriteFont, "score: " + _score + ", liv: " + lives, scorePosition, Color.RosyBrown, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
+            }
+
+            if (gameState == GameState.GameOver)
+            {
+                _spriteBatch.DrawString(spriteFont, "GAME OVER", textPosition, Color.RosyBrown, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
             }
 
             _spriteBatch.End();

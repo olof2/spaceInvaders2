@@ -145,6 +145,13 @@
 /processorParam:TextureFormat=Color
 /build:space_light.jpg
 
+#begin spritefont1.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:spritefont1.spritefont
+
 #begin Stars_panorama_sheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
