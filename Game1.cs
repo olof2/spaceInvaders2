@@ -18,6 +18,8 @@ namespace spaceInvaders2
         SpriteBatch _spriteBatch;
         public enum GameState { Menu, Game, GameOver }
         GameState gameState = GameState.Menu;
+        int frame;
+        double frameTimer, frameInterval;
 
         SpriteFont spriteFont;
         Vector2 textPosition;
@@ -28,6 +30,8 @@ namespace spaceInvaders2
         Texture2D enemyTexture;
         Texture2D menuBackground;
         Texture2D gameOverBackground;
+        Texture2D explosion;
+        Rectangle explosionRect;
 
         Vector2 backgroundOrigin1;
         Vector2 backgroundOrigin2;
@@ -95,6 +99,8 @@ namespace spaceInvaders2
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            frameTimer = 100; 
+            frameInterval = 100;
 
             spriteFont = Content.Load<SpriteFont>("spritefont1");
             textPosition = new Vector2(windowWidth / 2 - 100, windowHeight / 2);
@@ -105,6 +111,9 @@ namespace spaceInvaders2
             enemyTexture = Content.Load<Texture2D>(@"alien03_single");
             menuBackground = Content.Load<Texture2D>("space_light");
             gameOverBackground = Content.Load<Texture2D>("Stars_panorama_sheet");
+
+            explosion = Content.Load<Texture2D>("explotion01_sprites");
+            explosionRect = new Rectangle(50, 50, 110, 100);
 
             backgroundOrigin1 = new Vector2(gameOverBackground.Width, 50);
             backgroundOrigin2 = new Vector2(gameOverBackground.Width*2, 10);
@@ -171,6 +180,15 @@ namespace spaceInvaders2
                 {
                     gameState = GameState.Game;
                 }
+                //animating explosion sprite
+                frameTimer -= gameTime.ElapsedGameTime.TotalMilliseconds;
+                if (frameTimer <= 0)
+                {
+                    frame++;
+                    frameTimer = frameInterval;
+                    if (frame >= 5) { frame = 0; }
+                    explosionRect.X = frame * 110;
+                }
             }
 
             //gamestate game
@@ -193,12 +211,12 @@ namespace spaceInvaders2
                     if (enemyPosition.X >= windowWidth - enemyTexture.Width)
                     {
                         flipDirection = true;
-                        edgeBoost = -50;
+                        edgeBoost = -20;
                     }
                     else if (enemyPosition.X <= 0)
                     {
                         flipDirection = true;
-                        edgeBoost = 50;
+                        edgeBoost = 20;
                     }
 
                     //checking if enemy reached bottom of screen, if so, player loses a life and enemy dies
@@ -224,6 +242,7 @@ namespace spaceInvaders2
 
                 }
 
+                //if flipdirection just happend, move all enemies down and flip direction
                 if (flipDirection == true)
                 {
                     foreach (Enemy _e in enemyArray)
@@ -289,6 +308,7 @@ namespace spaceInvaders2
                             bulletTrash.Add(_bullet);
                             _enemy.lives -= 1;
                             _score += 100;
+                            if (_enemy.lives == 0) { _enemy.position.X = 200; }
                         }
                     }
                 }
@@ -334,6 +354,7 @@ namespace spaceInvaders2
             {
                 _spriteBatch.Draw(menuBackground, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1.5f, SpriteEffects.None, 0f);
                 _spriteBatch.DrawString(spriteFont, "press SPACE to start", textPosition, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                _spriteBatch.Draw(explosion, new Vector2(100, 500), explosionRect, Color.White);
             }
 
             if (gameState == GameState.Game)
@@ -354,7 +375,7 @@ namespace spaceInvaders2
                     }
                 }
 
-                _spriteBatch.DrawString(spriteFont, "score: " + _score + ", liv: " + lives, scorePosition, Color.RosyBrown, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
+                _spriteBatch.DrawString(spriteFont, "score: " + _score + ", liv: " + lives, scorePosition, Color.White, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
             }
 
             if (gameState == GameState.GameOver)
@@ -371,3 +392,5 @@ namespace spaceInvaders2
         }
     }
 }
+
+//ändra på spritebatch draw med explosion rect, flytta så den ser rätt ut
