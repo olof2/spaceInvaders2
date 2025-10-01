@@ -381,6 +381,17 @@ namespace spaceInvaders2
                 _spriteBatch.DrawString(spriteFont, "click button or press SPACE to start", textPosition, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
                 _spriteBatch.Draw(explosion, new Vector2(100, 500), explosionRect, Color.White);
                 _spriteBatch.Draw(startButton, startButtonPos, Color.White);
+
+                for (int i = 0; i < 6; i++)
+                {
+                    //              fortsätt här, försök få till slumpmässiga explosioner på meny och flytta sedan till gameover
+                    // stryk klassen och bara initiera ny vector med random
+
+
+                    Vector2 rndPosition = new Vector2(0,0);
+                    rndPosition = RandomVector.Position(windowWidth, windowHeight);
+                    _spriteBatch.Draw(explosion, rndPosition, Color.White);
+                }
             }
 
             if (gameState == GameState.Game)
