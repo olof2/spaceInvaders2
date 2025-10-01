@@ -27,11 +27,15 @@ namespace spaceInvaders2
 
         Texture2D playerTexture;
         Texture2D bulletTexture;
-        Texture2D enemyTexture;
+        Texture2D enemyTexture1;
         Texture2D menuBackground;
         Texture2D gameOverBackground;
         Texture2D explosion;
         Rectangle explosionRect;
+
+        Texture2D rndStar;
+        Vector2 rndStarPos;
+        List<Vector2> rndStarList;
 
         Texture2D startButton;
         Rectangle startButtonRect;
@@ -114,7 +118,8 @@ namespace spaceInvaders2
 
             playerTexture = Content.Load<Texture2D>(@"Ship_01-1");
             bulletTexture = Content.Load<Texture2D>(@"Bullet");
-            enemyTexture = Content.Load<Texture2D>(@"alien03_single");
+            enemyTexture1 = Content.Load<Texture2D>(@"alien03_single");
+            enemyTexture2 = Content.Load<Texture2D>(@"alien02_single"); 
             menuBackground = Content.Load<Texture2D>("space_light");
             gameOverBackground = Content.Load<Texture2D>("Stars_panorama_sheet");
 
@@ -125,6 +130,16 @@ namespace spaceInvaders2
             startButtonRect = new Rectangle((int)startButtonPos.X, (int)startButtonPos.Y, startButton.Width, startButton.Height);
             mousePos = new System.Drawing.Point(0,0);
             //mousePoint = new Point(0, 0);     this line not needed?
+
+            rndStar = Content.Load<Texture2D>("explosion");
+            rndStarList = new List<Vector2>();
+            for (int i = 0; i < 7; i++)
+            {
+                int rndX = new Random().Next(windowWidth);
+                int rndY = new Random().Next(windowHeight);
+                rndStarPos = new Vector2(rndX, rndY);
+                rndStarList.Add(rndStarPos);
+            }
 
             //Vectors to place multiple backgrounds in gameover screen instead of scaling
             backgroundOrigin1 = new Vector2(gameOverBackground.Width, 50);
@@ -140,7 +155,7 @@ namespace spaceInvaders2
 
             enemyPosition = new Vector2(50, 50);
             enemyVelocity = new Vector2(20, 20);
-            enemyArray = new Enemy[3,5];
+            enemyArray = new Enemy[5,5];
             rnd = new Random();
             enemyCol = 4;
             enemyRow = 2;
@@ -151,18 +166,13 @@ namespace spaceInvaders2
             //spawning enemies in ARRAY, 3 rows of 5
             for (int i = 0; i < 5; i++)
             {
-                enemyPosition.Y = 20;
-                enemyPosition.X = 20 + i * 30 + i * enemyTexture.Width;
-                enemy = new Enemy(enemyTexture, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 2);
-                enemyArray[0,i] = enemy;
-
-                enemyPosition.Y = 110;
-                enemy = new Enemy(enemyTexture, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
-                enemyArray[1,i] = enemy;
-
-                enemyPosition.Y = 200;
-                enemy = new Enemy(enemyTexture, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
-                enemyArray[2,i] = enemy;
+                for (int k = 0; k < 5; k++)
+                {
+                    enemyPosition.Y = 20 + 100*i;
+                    enemyPosition.X = 20 + k * 10 + k * enemyTexture1.Width;
+                    enemy = new Enemy(enemyTexture1, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
+                    enemyArray[i, k] = enemy;
+                }
             }
 
             bulletList = new List<Bullet>();
@@ -233,7 +243,7 @@ namespace spaceInvaders2
                     enemyPosition = _enemy.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
                     //if enemy reached edge, flip direction, setting edgeboost to safeguard from enemy getting stuck at edge
-                    if (enemyPosition.X >= windowWidth - enemyTexture.Width)
+                    if (enemyPosition.X >= windowWidth - enemyTexture1.Width)
                     {
                         flipDirection = true;
                         edgeBoost = -20;
@@ -284,7 +294,7 @@ namespace spaceInvaders2
                 {
                     //slumpar fram en enemy som ska skjuta, kollar om den lever, annars kollar nästa enemy i arrayen
                     enemyCol = rnd.Next(0, 5);
-                    enemyRow = rnd.Next(0, 3);
+                    enemyRow = rnd.Next(0, 5);
                     while (enemyArray[enemyRow, enemyCol].lives == 0)
                     {
                         Debug.WriteLine("enemy at " + enemyRow + " , " + enemyCol + " is dead, finding new enemy");
@@ -293,7 +303,7 @@ namespace spaceInvaders2
                         {
                             enemyCol = 0;
 
-                            if (enemyRow < 2)
+                            if (enemyRow < 4)
                             {
                                 enemyRow++;
                             }
@@ -381,17 +391,6 @@ namespace spaceInvaders2
                 _spriteBatch.DrawString(spriteFont, "click button or press SPACE to start", textPosition, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
                 _spriteBatch.Draw(explosion, new Vector2(100, 500), explosionRect, Color.White);
                 _spriteBatch.Draw(startButton, startButtonPos, Color.White);
-
-                for (int i = 0; i < 6; i++)
-                {
-                    //              fortsätt här, försök få till slumpmässiga explosioner på meny och flytta sedan till gameover
-                    // stryk klassen och bara initiera ny vector med random
-
-
-                    Vector2 rndPosition = new Vector2(0,0);
-                    rndPosition = RandomVector.Position(windowWidth, windowHeight);
-                    _spriteBatch.Draw(explosion, rndPosition, Color.White);
-                }
             }
 
             if (gameState == GameState.Game)
@@ -417,6 +416,10 @@ namespace spaceInvaders2
 
             if (gameState == GameState.GameOver)
             {
+                foreach (Vector2 pos in rndStarList)
+                {
+                    _spriteBatch.Draw(rndStar, pos, Color.White);
+                }
                 _spriteBatch.Draw(gameOverBackground, Vector2.Zero, null, Color.White);
                 _spriteBatch.Draw(gameOverBackground, backgroundOrigin1, Color.Yellow);
                 _spriteBatch.Draw(gameOverBackground, backgroundOrigin2, Color.DarkGray);
