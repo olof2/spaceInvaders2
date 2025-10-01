@@ -28,6 +28,7 @@ namespace spaceInvaders2
         Texture2D playerTexture;
         Texture2D bulletTexture;
         Texture2D enemyTexture1;
+        Texture2D enemyTexture2;
         Texture2D menuBackground;
         Texture2D gameOverBackground;
         Texture2D explosion;
@@ -166,12 +167,25 @@ namespace spaceInvaders2
             //spawning enemies in ARRAY, 3 rows of 5
             for (int i = 0; i < 5; i++)
             {
-                for (int k = 0; k < 5; k++)
+                if (i <= 1)
                 {
-                    enemyPosition.Y = 20 + 100*i;
-                    enemyPosition.X = 20 + k * 10 + k * enemyTexture1.Width;
-                    enemy = new Enemy(enemyTexture1, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
-                    enemyArray[i, k] = enemy;
+                    for (int k = 0; k < 5; k++)
+                    {
+                        enemyPosition.Y = 20 + 100 * i;
+                        enemyPosition.X = 20 + k * 10 + k * enemyTexture1.Width;
+                        enemy = new Enemy(enemyTexture2, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 2);
+                        enemyArray[i, k] = enemy;
+                    }
+                }
+                else
+                {
+                    for (int k = 0; k < 5; k++)
+                    {
+                        enemyPosition.Y = 20 + 100 * i;
+                        enemyPosition.X = 20 + k * 10 + k * enemyTexture1.Width;
+                        enemy = new Enemy(enemyTexture1, bulletTexture, enemyPosition, enemyVelocity, windowHeight, windowWidth, 1);
+                        enemyArray[i, k] = enemy;
+                    }
                 }
             }
 
