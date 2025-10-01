@@ -33,6 +33,12 @@ namespace spaceInvaders2
         Texture2D explosion;
         Rectangle explosionRect;
 
+        Texture2D startButton;
+        Rectangle startButtonRect;
+        Vector2 startButtonPos;
+        System.Drawing.Point mousePos;
+        Point mousePoint;
+
         Vector2 backgroundOrigin1;
         Vector2 backgroundOrigin2;
         Vector2 backgroundOrigin3;
@@ -113,8 +119,14 @@ namespace spaceInvaders2
             gameOverBackground = Content.Load<Texture2D>("Stars_panorama_sheet");
 
             explosion = Content.Load<Texture2D>("explotion01_sprites");
-            explosionRect = new Rectangle(50, 50, 110, 100);
+            explosionRect = new Rectangle(0, 0, 110, 100);
+            startButton = Content.Load<Texture2D>("Startknapp");
+            startButtonPos = new Vector2(windowWidth / 2 - startButton.Width / 2, 300);
+            startButtonRect = new Rectangle((int)startButtonPos.X, (int)startButtonPos.Y, startButton.Width, startButton.Height);
+            mousePos = new System.Drawing.Point(0,0);
+            //mousePoint = new Point(0, 0);     this line not needed?
 
+            //Vectors to place multiple backgrounds in gameover screen instead of scaling
             backgroundOrigin1 = new Vector2(gameOverBackground.Width, 50);
             backgroundOrigin2 = new Vector2(gameOverBackground.Width*2, 10);
             backgroundOrigin3 = new Vector2(gameOverBackground.Width*3, 20);
@@ -176,10 +188,23 @@ namespace spaceInvaders2
             //gamestate MENU
             if (gameState == GameState.Menu)
             {
+                //space to start
                 if (Keyboard.GetState().IsKeyDown(Keys.Space))
                 {
                     gameState = GameState.Game;
                 }
+
+                //clicking button to start
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    mousePos = new System.Drawing.Point(Mouse.GetState().X, Mouse.GetState().Y);
+                    mousePoint = new Point(mousePos.X, mousePos.Y);
+                    if (startButtonRect.Contains(mousePoint))
+                    {
+                        gameState = GameState.Game;
+                    }
+                }
+
                 //animating explosion sprite
                 frameTimer -= gameTime.ElapsedGameTime.TotalMilliseconds;
                 if (frameTimer <= 0)
@@ -353,8 +378,9 @@ namespace spaceInvaders2
             if (gameState == GameState.Menu)
             {
                 _spriteBatch.Draw(menuBackground, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1.5f, SpriteEffects.None, 0f);
-                _spriteBatch.DrawString(spriteFont, "press SPACE to start", textPosition, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                _spriteBatch.DrawString(spriteFont, "click button or press SPACE to start", textPosition, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
                 _spriteBatch.Draw(explosion, new Vector2(100, 500), explosionRect, Color.White);
+                _spriteBatch.Draw(startButton, startButtonPos, Color.White);
             }
 
             if (gameState == GameState.Game)
@@ -393,4 +419,3 @@ namespace spaceInvaders2
     }
 }
 
-//ändra på spritebatch draw med explosion rect, flytta så den ser rätt ut
