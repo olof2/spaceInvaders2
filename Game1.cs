@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Drawing.Text;
 
 
-
 namespace spaceInvaders2
 {
     public class Game1 : Game
@@ -164,9 +163,10 @@ namespace spaceInvaders2
             edgeBoost = 0;
             enemyLivesSum = 0;
 
-            //spawning enemies in ARRAY, 3 rows of 5
+            //spawning enemies in ARRAY, 5 rows of 5
             for (int i = 0; i < 5; i++)
             {
+                //first 2 rows, enemies get 2 lives
                 if (i <= 1)
                 {
                     for (int k = 0; k < 5; k++)
@@ -198,7 +198,7 @@ namespace spaceInvaders2
 
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
+            // Allows the game to exit with ESC
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 Exit();
@@ -362,7 +362,7 @@ namespace spaceInvaders2
                     }
                 }
 
-                //check if any enemies are alive, if not, go to gameover
+                //check if any enemies are alive, if not, go to gameover (sum set to 0 at start of each frame)
                 foreach (Enemy _enemy in enemyArray)
                 {
                     enemyLivesSum += _enemy.lives;
@@ -388,7 +388,47 @@ namespace spaceInvaders2
             //gamestate gameover
             if (gameState == GameState.GameOver)
             {
-
+                if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                {
+                    //resetting game variables
+                    lives = 3;
+                    _score = 0;
+                    shootingTimer.ResetAndStart(0.6);
+                    enemyShootingTimer.ResetAndStart(1.0);
+                    //resetting enemies
+                    enemyPosition = new Vector2(50, 50);
+                    for (int i = 0; i < 5; i++)
+                    {
+                        if (i <= 1)
+                        {
+                            for (int k = 0; k < 5; k++)
+                            {
+                                enemyPosition.Y = 20 + 100 * i;
+                                enemyPosition.X = 20 + k * 10 + k * enemyTexture1.Width;
+                                enemyArray[i, k].position = enemyPosition;
+                                enemyArray[i, k].lives = 2;
+                            }
+                        }
+                        else
+                        {
+                            for (int k = 0; k < 5; k++)
+                            {
+                                enemyPosition.Y = 20 + 100 * i;
+                                enemyPosition.X = 20 + k * 10 + k * enemyTexture1.Width;
+                                enemyArray[i, k].position = enemyPosition;
+                                enemyArray[i, k].lives = 1;
+                            }
+                        }
+                    }
+                    foreach (Enemy _e in enemyArray)
+                    {
+                        _e.moveTimer.ResetAndStart(0.6);
+                        _e.moveDelay = 0.6;
+                    }
+                    bulletList.Clear();
+                    bulletTrash.Clear();
+                    gameState = GameState.Game;
+                }
             }
 
             base.Update(gameTime);
@@ -439,6 +479,7 @@ namespace spaceInvaders2
                 _spriteBatch.Draw(gameOverBackground, backgroundOrigin2, Color.DarkGray);
                 _spriteBatch.Draw(gameOverBackground, backgroundOrigin3, Color.Turquoise);
                 _spriteBatch.DrawString(spriteFont, "GAME OVER", textPosition, Color.White, 0, Vector2.Zero, 2, SpriteEffects.None, 1);
+                _spriteBatch.DrawString(spriteFont, "press space to restart", new Vector2(textPosition.X, textPosition.Y + 80), Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             }
 
             _spriteBatch.End();

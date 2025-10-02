@@ -13,8 +13,8 @@ namespace spaceInvaders2
         int windowHeight;
         int windowWidth;
         public int lives;
-        CooldownTimer moveTimer;
-        double moveDelay;
+        public CooldownTimer moveTimer;
+        public double moveDelay;
 
         Vector2 bulletStartPosition;
         public Bullet bullet;
