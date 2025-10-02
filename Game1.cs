@@ -357,6 +357,7 @@ namespace spaceInvaders2
                             _enemy.lives -= 1;
                             _score += 100;
                             if (_enemy.lives == 0) { _enemy.position.X = 200; }
+                            //kan detta göras på samma sätt som när bullets når endposition ?
                         }
                     }
                 }
