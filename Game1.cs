@@ -129,7 +129,6 @@ namespace spaceInvaders2
             startButtonPos = new Vector2(windowWidth / 2 - startButton.Width / 2, 300);
             startButtonRect = new Rectangle((int)startButtonPos.X, (int)startButtonPos.Y, startButton.Width, startButton.Height);
             mousePos = new System.Drawing.Point(0,0);
-            //mousePoint = new Point(0, 0);     this line not needed?
 
             rndStar = Content.Load<Texture2D>("explosion");
             rndStarList = new List<Vector2>();
@@ -158,7 +157,7 @@ namespace spaceInvaders2
             enemyArray = new Enemy[5,5];
             rnd = new Random();
             enemyCol = 4;
-            enemyRow = 2;
+            enemyRow = 4;
             flipDirection = false;
             edgeBoost = 0;
             enemyLivesSum = 0;
@@ -374,7 +373,7 @@ namespace spaceInvaders2
                 foreach (Bullet _b in bulletTrash) { bulletList.Remove(_b); }
 
 
-                //removing bullets that reached end length
+                //removing bullets that reached end 
                 for (int i = 0; i < bulletList.Count; i++)
                 {
                     _bull = bulletList[i];
